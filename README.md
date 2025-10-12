@@ -1,70 +1,63 @@
-Under Construction
-# **📸 ESP32-CAM FPV Video Transmitter (VTX)**
+# **🛰️ ESP32-CAM High-Power FPV Digital Video Link**
 
-**Low-latency, cost-effective digital video transmission using the popular ESP32-CAM module.**
+**A dual-device digital FPV system leveraging two ESP32 modules for low-latency video transmission and link quality monitoring.**
 
-This project transforms the versatile **ESP32-CAM** development board into a functional **Video Transmitter (VTX)**, perfect for use in RC vehicles, small drones, or general remote monitoring applications where a light, affordable digital video link is needed.
+This project transforms the **ESP32-CAM** into a high-performance **Video Transmitter (VTX)** and uses a second standard **ESP32** module as a dedicated **Ground Station Client**. This configuration ensures maximum link performance by disabling Wi-Fi sleep and maximizing transmission power on both ends.
 
-Leveraging the power of the ESP32 chip, this firmware streams live video over **Wi-Fi**, providing a modern alternative to traditional analog VTX systems.
+The video stream is available directly on any mobile device (phone, tablet, computer) connected to the VTX's dedicated Wi-Fi network.
 
-## **✨ Key Features**
+## **✨ System Architecture & Key Features**
 
-* **Wireless Video Streaming:** Utilizes the ESP32's built-in Wi-Fi for video transmission.  
-* **Web-Based Viewer:** Includes a simple built-in web server for easy viewing from any Wi-Fi-enabled device (phone, tablet, PC).  
-* **Low Latency Focus:** Optimized configuration for maximum frame rate and minimum delay, crucial for FPV.  
-* **Lightweight & Compact:** Ideal for small-scale projects where size and weight are critical.  
-* **Configuration:** Easy-to-edit configuration file for adjusting Wi-Fi settings and camera parameters (e.g., resolution, brightness).
+### **1\. Vehicle/VTX (ESP32-CAM)**
 
-## **🛠️ Hardware Requirements**
+* **Access Point (AP) Mode:** Creates its own dedicated Wi-Fi network (Esp32Cam / 12345678).  
+* **High-Power TX:** Sets Wi-Fi transmit power to maximum (**19.5dBm**) for maximum range and penetration.  
+* **Low-Latency Optimized:** Uses **QVGA resolution** and a **JPEG Quality of 35** to prioritize high frame rates over image size.  
+* **MJPEG Video Stream:** Serves a raw MJPEG video stream accessible via a standard web browser.
 
-To get this project running, you will need the following core components:
+### **2\. Ground Station Client (ESP32)**
 
-| Component | Description |
-| :---- | :---- |
-| **ESP32-CAM Module** | AI-Thinker or similar module with the OV2640 camera. |
-| **FTDI / USB-to-TTL Adapter** | Required for flashing the firmware to the ESP32. |
-| **Power Supply** | A stable 5V DC supply (a BEC on an RC system works well). |
+* **Link Quality Monitoring:** Connects to the VTX network and reports the real-time **RSSI (Signal Strength)** via Serial Monitor.  
+* **Max Performance Mode:** Disables Wi-Fi sleep (WiFi.setSleep(false)) to maintain the fastest possible connection and communication.
 
-## **🚀 Getting Started**
+## **🛠️ Hardware Components**
 
-Follow these steps to flash the firmware onto your ESP32-CAM and begin streaming video.
+| Component | Role | Description |
+| :---- | :---- | :---- |
+| **ESP32-CAM Module** | Vehicle VTX & Server | Camera module (e.g., AI-Thinker) running the AP firmware. |
+| **Standard ESP32 Module** | Ground Client & Monitor | Any standard ESP32 development board (e.g., ESP32 DevKit) running the client firmware. |
+| **FTDI / USB-to-TTL Adapters** | Programming | Required for flashing both ESP32 modules. |
+| **Viewer Device** | Monitor Screen | Smartphone, tablet, or laptop to connect to the Esp32Cam network and view the stream. |
 
-### **1\. Software Prerequisites**
+## **⚙️ Setup and Flashing Instructions**
 
-Make sure you have the following software installed:
+### **1\. Prepare Environment**
 
-* **Arduino IDE** or **VS Code with PlatformIO**  
-* The **ESP32 Boards Manager** installed in your IDE.
+* Install **Arduino IDE** or **VS Code with PlatformIO**.  
+* Ensure the ESP32 Boards Manager is installed.
 
-### **2\. Flashing the Code**
+### **2\. Flash the VTX Firmware (ESP32-CAM)**
 
-1. Clone this repository to your local machine:  
-   git clone \[https://github.com/Boyyt357/Esp-32-cam-VTX.git\](https://github.com/Boyyt357/Esp-32-cam-VTX.git)
+1. Open the Esp32\_cam\_VTX code.  
+2. Verify the AP credentials (currently Esp32Cam / 12345678).  
+3. Select the AI-Thinker ESP32-CAM board.  
+4. Connect the ESP32-CAM and set it to **programming mode** (usually by grounding **GPIO 0**).  
+5. Upload the code.  
+6. After upload, disconnect **GPIO 0**.
 
-2. Open the project in your chosen IDE.  
-3. **Configure Wi-Fi:** Before compiling, open the main sketch file and update the following lines with your network credentials:  
-   const char\* ssid \= "YOUR\_WIFI\_SSID";  
-   const char\* password \= "YOUR\_WIFI\_PASSWORD";
+### **3\. Flash the Ground Station Client Firmware (Standard ESP32)**
 
-   *(Note: For field use, you may want to configure it to create its own Access Point (AP).)*  
-4. Connect your ESP32-CAM to your FTDI adapter (ensure correct wiring for programming mode, usually grounding **GPIO 0**).  
-5. Select the correct board (AI-Thinker ESP32-CAM) and COM port.  
-6. Upload the code. Once the upload is complete, disconnect the **GPIO 0** wire to return the board to running mode.
+1. Open the esp32\_client code.  
+2. Verify the SSID/Password match the VTX firmware.  
+3. Select your standard ESP32 board model.  
+4. Upload the code.
 
-### **3\. Usage**
+## **🚀 Operation and Viewing**
 
-1. Connect the ESP32-CAM to a stable 5V power source.  
-2. The module will connect to your specified Wi-Fi network.  
-3. Check your router's client list or use a network scanning app to find the IP address assigned to the ESP32 (it will likely appear as esp32-cam).  
-4. Open any web browser on a device connected to the same network and navigate to the IP address:  
-   http://\<ESP32\_IP\_ADDRESS\>
-
-5. You should now see the live video feed\!
-
-## **🤝 Contribution**
-
-Contributions, issues, and feature requests are welcome\! Feel free to check the [issues page](https://www.google.com/search?q=https://github.com/Boyyt357/Esp-32-cam-VTX/issues) and submit a pull request if you have improvements or bug fixes.
-
-## **📄 License**
-
-This project is released under the **MIT License**. See the LICENSE file for details.
+1. **Power On:** Supply stable 5V power to both the ESP32-CAM (VTX) and the ESP32 Client (Ground).  
+2. **Monitor Link:** Open the Serial Monitor for the **Ground Station Client** to see the **RSSI** (signal strength) reports. This lets you confirm the connection quality.  
+3. **Connect Viewer:** On your phone, tablet, or laptop, connect to the new Wi-Fi network:  
+   * **SSID:** Esp32Cam  
+   * **Password:** 12345678  
+4. **View Stream:** Open a web browser and navigate to the default IP address of the ESP32-CAM server:  
+   \[http://192.168.4.1\](http://192.168.4.1)  
