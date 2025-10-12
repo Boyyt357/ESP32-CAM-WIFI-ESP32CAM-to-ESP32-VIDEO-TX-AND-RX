@@ -1,37 +1,30 @@
 #include <WiFi.h>
 
-// ======== Access Point credentials ========
-const char* ssid = "Esp 32 Cam";
-const char* password = "12345678";  // at least 8 characters
+const char* ssid = "Esp32Cam";       // ESP32-CAM AP
+const char* password = "12345678";
 
 void setup() {
   Serial.begin(115200);
   Serial.println();
 
-  // ======== Configure Access Point ========
-  WiFi.mode(WIFI_AP);  // Set device as Access Point
-  WiFi.softAP(ssid, password);
+  WiFi.mode(WIFI_STA);                // Set device as Wi-Fi client
+  WiFi.setSleep(false);               // Disable sleep for max performance
+  WiFi.setTxPower(WIFI_POWER_19_5dBm); // Max transmit power (also helps reception in some cases)
+  WiFi.begin(ssid, password);
 
-  // Optional: set static IP (for easier debugging / known address)
-  IPAddress local_ip(192, 168, 4, 1);
-  IPAddress gateway(192, 168, 4, 1);
-  IPAddress subnet(255, 255, 255, 0);
-  WiFi.softAPConfig(local_ip, gateway, subnet);
+  Serial.print("Connecting to AP ");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
 
-  Serial.println("======================================");
-  Serial.println("ESP32 Wi-Fi Access Point Started!");
-  Serial.print("SSID: ");
-  Serial.println(ssid);
-  Serial.print("Password: ");
-  Serial.println(password);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.softAPIP());
-  Serial.println("======================================");
+  Serial.println("\nConnected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void loop() {
-  // Display number of connected devices every few seconds
-  Serial.print("Connected devices: ");
-  Serial.println(WiFi.softAPgetStationNum());
+  Serial.print("RSSI: ");             // Show signal strength
+  Serial.println(WiFi.RSSI());
   delay(5000);
 }
