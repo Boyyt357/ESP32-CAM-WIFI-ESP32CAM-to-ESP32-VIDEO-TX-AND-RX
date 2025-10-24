@@ -1,4 +1,4 @@
-# **🛰️ ESP32-CAM High-Power FPV Digital Video Link**
+# **🛰️ ESP32-CAM WIFi FPV Digital Video Link**
 
 ## ***Tutorial and Testing👇***
 ## **https://youtu.be/i73PIZorhhw**
