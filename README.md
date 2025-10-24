@@ -65,4 +65,4 @@ The video stream is available directly on any mobile device (phone, tablet, comp
    * **SSID:** Esp32Cam  
    * **Password:** 12345678  
 4. **View Stream:** Open a web browser and navigate to the default IP address of the ESP32-CAM server:  
-   \[http://192.168.4.1\](http://192.168.4.1)  
+   (http://192.168.10.2/)
