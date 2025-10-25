@@ -1,68 +1,88 @@
-# **🛰️ ESP32-CAM WIFi FPV Digital Video Link**
+# **Long-Range ESP32-CAM Video Relay (TX/RX)**
 
-## ***Tutorial and Testing👇***
+## **Tutorial and Testing👇**
 ## **https://youtu.be/i73PIZorhhw**
 <img width="1450" height="967" alt="3bb64f09-70f4-411a-84ec-98a55a553816" src="https://github.com/user-attachments/assets/3f4c891e-3cf7-48c4-8c82-1b1fbeec757f" />
 
+This project provides a robust, two-ESP32 solution for creating a **long-range, high-power wireless video link** between an **ESP32-CAM (Transmitter/TX)** and a **Viewing Device (Client)**, using a second **ESP32 (Receiver/RX)** as a dedicated, high-gain Access Point (AP) relay.
 
-**A dual-device digital FPV system leveraging two ESP32 modules for low-latency video transmission and link quality monitoring.**
+## **🚀 Concept Overview**
 
-This project transforms the **ESP32-CAM** into a high-performance **Video Transmitter (VTX)** and uses a second standard **ESP32** module as a dedicated **Ground Station Client**. This configuration ensures maximum link performance by disabling Wi-Fi sleep and maximizing transmission power on both ends.
+Instead of relying on a standard home router or a single ESP32 acting as both AP and server (which limits range and performance), this setup dedicates each device to a specific task for maximum efficiency:
 
-The video stream is available directly on any mobile device (phone, tablet, computer) connected to the VTX's dedicated Wi-Fi network.
+1. **RX Unit (AP Relay):** Creates a dedicated, high-power Wi-Fi network with optimized settings for range (Max TX Power, 20MHz bandwidth).  
+2. **TX Unit (Camera):** Connects to the RX unit's AP, captures MJPEG video, and hosts the web stream.  
+3. **Viewer (Phone/PC):** Connects to the RX unit's AP and accesses the stream URL hosted by the TX unit.
 
-## **✨ System Architecture & Key Features**
+## **✨ Features**
 
-### **1\. Vehicle/VTX (ESP32-CAM)**
+* **High-Power AP Mode:** RX unit is configured with esp\_wifi\_set\_max\_tx\_power(84) (21 dBm) for maximum possible Wi-Fi range.  
+* **MJPEG Video Stream:** The TX unit captures and streams high-speed video frames (up to 15 FPS at VGA).  
+* **Dedicated Bandwidth:** The system operates on its own dedicated network, reducing interference and maximizing link stability.  
+* **Simple Web Interface:** Minimalist dark-themed web interface for viewing the stream.  
+* **Optimized Camera Settings:** Allows easy configuration of resolution and JPEG quality.
 
-* **Access Point (AP) Mode:** Creates its own dedicated Wi-Fi network (Esp32Cam / 12345678).  
-* **High-Power TX:** Sets Wi-Fi transmit power to maximum (**19.5dBm**) for maximum range and penetration.  
-* **Low-Latency Optimized:** Uses **QVGA resolution** and a **JPEG Quality of 35** to prioritize high frame rates over image size.  
-* **MJPEG Video Stream:** Serves a raw MJPEG video stream accessible via a standard web browser.
+## **📋 Hardware Requirements**
 
-### **2\. Ground Station Client (ESP32)**
-
-* **Link Quality Monitoring:** Connects to the VTX network and reports the real-time **RSSI (Signal Strength)** via Serial Monitor.  
-* **Max Performance Mode:** Disables Wi-Fi sleep (WiFi.setSleep(false)) to maintain the fastest possible connection and communication.
-
-## **🛠️ Hardware Components**
-
-| Component | Role | Description |
+| Component | Quantity | Description |
 | :---- | :---- | :---- |
-| **ESP32-CAM Module** | Vehicle VTX & Server | Camera module (e.g., AI-Thinker) running the AP firmware. |
-| **Standard ESP32 Module** | Ground Client & Monitor | Any standard ESP32 development board (e.g., ESP32 DevKit) running the client firmware. |
-| **FTDI / USB-to-TTL Adapters** | Programming | Required for flashing both ESP32 modules. |
-| **Viewer Device** | Monitor Screen | Smartphone, tablet, or laptop to connect to the Esp32Cam network and view the stream. |
+| **TX Unit (Transmitter)** | 1 | ESP32-CAM (AI-Thinker model assumed) |
+| **RX Unit (Access Point)** | 1 | Standard ESP32 Development Board (e.g., ESP32-WROOM-32) |
+| **Viewing Device** | 1 | Smartphone, Tablet, or PC with Wi-Fi and Web Browser |
+| **Power Supply** | 2 | Stable 5V supply for both units |
 
-## **⚙️ Setup and Flashing Instructions**
+## **🛠️ Software & Libraries**
 
-### **1\. Prepare Environment**
+* **Arduino IDE** or **VS Code (PlatformIO)**  
+* **ESP32 Board Support Package**  
+* **Libraries:**  
+  * WiFi.h (Built-in)  
+  * WebServer.h (Install using Library Manager: **"WebServer by ESP32"**)  
+  * esp\_camera.h (Built-in with ESP32-CAM support)
 
-* Install **Arduino IDE** or **VS Code with PlatformIO**.  
-* Ensure the ESP32 Boards Manager is installed.
+## **⚙️ Configuration & Setup**
 
-### **2\. Flash the VTX Firmware (ESP32-CAM)**
+### **1\. Common Settings (Verify in both files)**
 
-1. Open the Esp32\_cam\_VTX code.  
-2. Verify the AP credentials (currently Esp32Cam / 12345678).  
-3. Select the AI-Thinker ESP32-CAM board.  
-4. Connect the ESP32-CAM and set it to **programming mode** (usually by grounding **GPIO 0**).  
-5. Upload the code.  
-6. After upload, disconnect **GPIO 0**.
+The network credentials must match exactly in both the TX.ino and RX.ino files:
 
-### **3\. Flash the Ground Station Client Firmware (Standard ESP32)**
+| Setting | Value | File to Check |
+| :---- | :---- | :---- |
+| **SSID** | ESP32\_CAM\_RELAY | Both |
+| **Password** | camera123 | Both |
+| **Access IP** | 192.168.10.1 | RX.ino (Gateway/AP) |
+| **Camera IP (Expected)** | 192.168.10.2 | TX.ino connects to AP, this is the expected address. |
 
-1. Open the esp32\_client code.  
-2. Verify the SSID/Password match the VTX firmware.  
-3. Select your standard ESP32 board model.  
-4. Upload the code.
+### **2\. RX Unit (Access Point / Relay) Setup (RX.ino)**
 
-## **🚀 Operation and Viewing**
+The RX.ino sketch configures the second ESP32 as the dedicated Access Point:
 
-1. **Power On:** Supply stable 5V power to both the ESP32-CAM (VTX) and the ESP32 Client (Ground).  
-2. **Monitor Link:** Open the Serial Monitor for the **Ground Station Client** to see the **RSSI** (signal strength) reports. This lets you confirm the connection quality.  
-3. **Connect Viewer:** On your phone, tablet, or laptop, connect to the new Wi-Fi network:  
-   * **SSID:** Esp32Cam  
-   * **Password:** 12345678  
-4. **View Stream:** Open a web browser and navigate to the default IP address of the ESP32-CAM server:  
-   (http://192.168.10.2/)
+* **Purpose:** Creates the high-power network (ESP32\_CAM\_RELAY).  
+* **Power Optimization:** Sets the TX power to maximum (84/21dBm) and disables power save.  
+* **Upload the RX.ino sketch to your standard ESP32 board.**  
+* **Monitor Serial Output:** Once started, the RX unit will print its network info and begin monitoring for connected clients.
+
+### **3\. TX Unit (Camera Streamer) Setup (TX.ino)**
+
+The TX.ino sketch configures the ESP32-CAM to capture video and join the network:
+
+* **Pinout:** The included pin definitions are for the standard **AI-THINKER ESP32-CAM** board. If you are using a different model, you must verify and adjust the \#define pin numbers at the top of the file.  
+* **Resolution/Quality:** Adjust the following lines in TX.ino to balance quality and speed:  
+  \#define DEFAULT\_FRAME\_SIZE FRAMESIZE\_VGA // FRAMESIZE\_QVGA (320x240) for faster stream  
+  \#define DEFAULT\_JPEG\_QUALITY 20         // Lower number (e.g., 10\) for better quality, higher (e.g., 40\) for faster transmission
+
+* **Upload the TX.ino sketch to your ESP32-CAM board.**  
+* **Monitor Serial Output:** The TX unit will attempt to connect to the ESP32\_CAM\_RELAY network and report its assigned IP address.
+
+## **📺 Usage Guide**
+
+Once both the **RX Unit** and the **TX Unit** are powered on and running:
+
+1. **Connect Your Device:** Use your mobile phone, tablet, or PC to connect to the Wi-Fi network named **ESP32\_CAM\_RELAY** using the password **camera123**.  
+2. **Access the Stream:** Open a web browser on your connected viewing device.  
+3. **Enter the TX IP:** Navigate to the expected IP address of the camera unit:  
+   \[http://192.168.10.2\](http://192.168.10.2)
+
+4. **View:** The browser will load the web page, and the live MJPEG stream will begin displaying automatically.
+
+**Note:** The stream address is hosted by the **TX Unit** (the camera), but you must be connected to the network created by the **RX Unit** (the AP Relay) to reach it.
