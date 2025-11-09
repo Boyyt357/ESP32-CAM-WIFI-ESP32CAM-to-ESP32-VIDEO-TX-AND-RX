@@ -1,4 +1,5 @@
 # **Long-Range ESP32-CAM Video Relay (TX/RX)**
+its now updated = https://github.com/Boyyt357/ESP32-CAM-WIFI-RTOS-Long-Range-VTX
 
 ## **Tutorial and Testing👇**
 ## **https://youtu.be/i73PIZorhhw**
